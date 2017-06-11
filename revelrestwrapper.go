@@ -43,6 +43,19 @@ func RenderGenericRevelJSONErrors(c *revel.Controller, errors []error) revel.Res
 	})
 }
 
+// RenderGenericRevelJSONWithValidationErrors is wrapper function for rendering json in type of JSONResponse
+func RenderGenericRevelJSONWithValidationErrors(c *revel.Controller, errors []*revel.ValidationError) revel.Result {
+	errMessages := make([]string, 0)
+	for _, err := range errors {
+		errMessages = append(errMessages, err.Message)
+	}
+	return c.RenderJSON(JSONResponse{
+		Success: false,
+		Data:    nil,
+		Errors:  errMessages,
+	})
+}
+
 // GenericErrorFromValidationErrors is a convenient function wrapping revel.ValidationError into []error
 func GenericErrorFromValidationErrors(validationErrors []*revel.ValidationError) []error {
 	errorList := make([]error, 0)
