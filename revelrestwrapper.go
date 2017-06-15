@@ -1,7 +1,7 @@
 package core
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/revel/revel"
 )
@@ -60,7 +60,7 @@ func RenderGenericRevelJSONWithValidationErrors(c *revel.Controller, errors []*r
 func GenericErrorFromValidationErrors(validationErrors []*revel.ValidationError) []error {
 	errorList := make([]error, 0)
 	for _, e := range validationErrors {
-		errorList = append(errorList, errors.New(e.Message))
+		errorList = append(errorList, fmt.Errorf("%s - %s", e.Key, e.Message))
 	}
 	return errorList
 }
