@@ -3,6 +3,10 @@ package core
 import (
 	"fmt"
 
+	"mime/multipart"
+
+	"io/ioutil"
+
 	"github.com/revel/revel"
 )
 
@@ -63,4 +67,19 @@ func GenericErrorFromValidationErrors(validationErrors []*revel.ValidationError)
 		errorList = append(errorList, fmt.Errorf("%s - %s", e.Key, e.Message))
 	}
 	return errorList
+}
+
+// GetFileDataFromFileHeader read data from given fileHeader (multipart.FileHeader) and return as []byte
+func GetFileDataFromFileHeader(fileHeader *multipart.FileHeader) ([]byte, error) {
+	f, err := fileHeader.Open()
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := ioutil.ReadAll(f)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
