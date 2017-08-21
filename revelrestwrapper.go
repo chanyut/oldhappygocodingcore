@@ -27,6 +27,7 @@ func RenderGenericRevelJSONSuccess(c *revel.Controller, data interface{}) revel.
 
 // RenderGenericRevelJSONError is wrapper function for rendering json in type of JSONResponse
 func RenderGenericRevelJSONError(c *revel.Controller, err error) revel.Result {
+	// log.Printf("[RevelRestWrapper] return error: %v", err)
 	return c.RenderJSON(JSONResponse{
 		Success: false,
 		Data:    nil,
@@ -40,6 +41,7 @@ func RenderGenericRevelJSONErrors(c *revel.Controller, errors []error) revel.Res
 	for _, err := range errors {
 		errMessages = append(errMessages, err.Error())
 	}
+	// log.Printf("[RevelRestWrapper] return error: %v", errors)
 	return c.RenderJSON(JSONResponse{
 		Success: false,
 		Data:    nil,
@@ -53,6 +55,7 @@ func RenderGenericRevelJSONWithValidationErrors(c *revel.Controller, errors []*r
 	for _, err := range errors {
 		errMessages = append(errMessages, err.Message)
 	}
+	// log.Printf("[RevelRestWrapper] return error: %v", errors)
 	return c.RenderJSON(JSONResponse{
 		Success: false,
 		Data:    nil,
