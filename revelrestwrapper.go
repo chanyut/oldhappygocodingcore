@@ -16,6 +16,20 @@ type JSONResponse struct {
 	Errors  []string    `json:"errors"`
 }
 
+func (resp JSONResponse) ErrorString() string {
+	if resp.Errors == nil {
+		return ""
+	} else if len(resp.Errors) == 0 {
+		return ""
+	}
+
+	errorString := ""
+	for _, errStr := range resp.Errors {
+		errorString += errStr + "\n"
+	}
+	return errorString
+}
+
 // RenderGenericRevelJSONSuccess is wrapper function for rendering json in type of JSONResponse
 func RenderGenericRevelJSONSuccess(c *revel.Controller, data interface{}) revel.Result {
 	return c.RenderJSON(JSONResponse{
@@ -28,6 +42,9 @@ func RenderGenericRevelJSONSuccess(c *revel.Controller, data interface{}) revel.
 // RenderGenericRevelJSONError is wrapper function for rendering json in type of JSONResponse
 func RenderGenericRevelJSONError(c *revel.Controller, err error) revel.Result {
 	// log.Printf("[RevelRestWrapper] return error: %v", err)
+	if err == nil {
+		panic(fmt.Errorf("err must not be null"))
+	}
 	return c.RenderJSON(JSONResponse{
 		Success: false,
 		Data:    nil,

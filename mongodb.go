@@ -6,6 +6,7 @@ import (
 	"github.com/revel/revel"
 
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 var (
@@ -72,6 +73,28 @@ func (mgoDb *MgoDb) C(collection string) *mgo.Collection {
 func (mgoDb *MgoDb) GFS(fs string) *mgo.GridFS {
 	mgoDb.GridFS = mgoDb.Db.GridFS(fs)
 	return mgoDb.GridFS
+}
+
+func (mgoDb *MgoDb) UploadFile(fileCollectionName string, fileName string, data []byte) (*mgo.GridFile, int, error) {
+	// save photo source file into database
+	gfsFile, err := mgoDb.GFS(fileCollectionName).Create(fileName)
+	if err != nil {
+		gfsFile.Close()
+		err = fmt.Errorf("[MongoDB::Uploadfile] failed to create file on database due to error: %v", err)
+		return nil, 0, err
+	}
+	n, err := gfsFile.Write(data)
+	if err != nil {
+		gfsFile.Close()
+		err := fmt.Errorf("[MongoDB::Uploadfile] failed to write filedue to error: %v", err)
+		return nil, 0, err
+	}
+	println("[MongoDB::Uploadfile] finished uploading file[", gfsFile.Id().(bson.ObjectId).Hex(), "] to database...", n, "bytes")
+	err = gfsFile.Close()
+	if err != nil {
+		return nil, 0, fmt.Errorf("[MongoDB::UploadFile] failed to close file")
+	}
+	return gfsFile, n, nil
 }
 
 // Close ...
