@@ -2,12 +2,21 @@ package core
 
 import (
 	"fmt"
+	"strings"
 
 	"mime/multipart"
 
 	"io/ioutil"
 
 	"github.com/revel/revel"
+)
+
+type RevelRequestMethodType string
+
+const (
+	RevelRequestMethodTypeGET  RevelRequestMethodType = "GET"
+	RevelRequestMethodTypePOST                        = "POST"
+	RevelRequestMethodTypePUT                         = "PUT"
 )
 
 type JSONResponse struct {
@@ -102,4 +111,15 @@ func GetFileDataFromFileHeader(fileHeader *multipart.FileHeader) ([]byte, error)
 	}
 
 	return data, nil
+}
+
+func GetMethodTypeOfRevelRequest(req *revel.Request) RevelRequestMethodType {
+	if strings.ToLower(req.Method) == "get" {
+		return RevelRequestMethodTypeGET
+	} else if strings.ToLower(req.Method) == "post" {
+		return RevelRequestMethodTypePOST
+	} else if strings.ToLower(req.Method) == "put" {
+		return RevelRequestMethodTypePUT
+	}
+	panic(fmt.Errorf("unknow request's method: %v", req.Method))
 }
