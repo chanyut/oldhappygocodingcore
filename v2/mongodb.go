@@ -1,7 +1,11 @@
 package core
 
 import (
+	"crypto/tls"
 	"fmt"
+	"log"
+	"net"
+	"strings"
 
 	"github.com/revel/revel"
 
@@ -34,22 +38,48 @@ func IsDup(err error) bool {
 func (mgoDb *MgoDb) Init(host string, dbName string) *mgo.Session {
 	if mainSession == nil {
 		var err error
-		mongoDBHost := host + dbName
-		fmt.Println("[mongodb] db host:", mongoDBHost)
-		mainSession, err = mgo.Dial(mongoDBHost)
+		mongoDBHost := host
+		log.Println("[mongodb::Init] db host:", mongoDBHost)
+
+		useSSL := strings.Contains(host, "ssl=true")
+		if useSSL {
+			log.Println("[mongodb::Init] use SSL")
+
+			// try to remove ssl option from host uri
+			host = strings.Replace(host, "&ssl=true", "", 1)
+			host = strings.Replace(host, "?ssl=true", "", 1)
+			log.Println("[mongodb::Init] clean up host uri:", host)
+
+			// set tls config...
+			tlsConfig := &tls.Config{}
+			tlsConfig.InsecureSkipVerify = true
+
+			// dial...
+			dialInfo, err := mgo.ParseURL(host)
+			if err != nil {
+				log.Println("[mongodb::Init] failed to parse host uri")
+				panic(err)
+			}
+			dialInfo.DialServer = func(addr *mgo.ServerAddr) (net.Conn, error) {
+				conn, err := tls.Dial("tcp", addr.String(), tlsConfig)
+				return conn, err
+			}
+
+			mainSession, err = mgo.DialWithInfo(dialInfo)
+		} else {
+			if mongoDBHost[len(mongoDBHost)-1:] != "/" {
+				mongoDBHost = mongoDBHost + "/"
+			}
+			mainSession, err = mgo.Dial(mongoDBHost + dbName)
+		}
+
 		if err != nil {
-			fmt.Println("[mongodb] cannot connect to", mongoDBHost, "due to error:", err.Error())
+			log.Println("[mongodb::Init] cannot connect to", mongoDBHost, "due to error:", err.Error())
 			panic(err)
 		}
 
 		mainSession.SetMode(mgo.Monotonic, true)
 		mainDb = mainSession.DB(dbName)
-
-		// debug...
-		// mgo.SetDebug(true)
-		// var aLogger *log.Logger
-		// aLogger = log.New(os.Stderr, "", log.LstdFlags)
-		// mgo.SetLogger(aLogger)
 	}
 
 	mgoDb.Session = mainSession.Copy()
