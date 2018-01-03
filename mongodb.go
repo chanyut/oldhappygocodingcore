@@ -69,6 +69,18 @@ func (mgoDb *MgoDb) InitByRevelConfig() *mgo.Session {
 	return mgoDb.Init(host, dbName)
 }
 
+// InitByRevelConfigDBKey initialize new Mongo session
+// it will lookup value of config key : "mongodb.{dbKey}.host" and "mongodb.{dbKey}.databasename"
+// and init with those values
+func (mgoDb *MgoDb) InitByRevelConfigDBKey(dbKey string) *mgo.Session {
+	host := revel.Config.StringDefault(fmt.Sprintf("mongodb.%s.host", dbKey), "")
+	dbName := revel.Config.StringDefault(fmt.Sprintf("mongodb.%s.databasename", dbKey), "")
+	if host == "" || dbName == "" {
+		panic("[MgoDb] failed to find database host and database name on revel config")
+	}
+	return mgoDb.Init(host, dbName)
+}
+
 // C implies to Collection
 func (mgoDb *MgoDb) C(collection string) *mgo.Collection {
 	mgoDb.Col = mgoDb.Db.C(collection)
