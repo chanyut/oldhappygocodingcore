@@ -47,7 +47,7 @@ func NewRevelResultRenderer(controller *revel.Controller) RevelResultRenderer {
 	return renderer
 }
 
-// RenderJSONSuccess is wrapper function for rendering json in type of JSONResponse
+// RenderJSONSuccess is wrapp er function for rendering json in type of JSONResponse
 func (r *RevelResultRenderer) RenderJSONSuccess(data interface{}) revel.Result {
 	return r.controller.RenderJSON(JSONResponse{
 		Success: true,
@@ -88,7 +88,7 @@ func (r *RevelResultRenderer) RenderJSONErrorWithUnspecificError(err error) reve
 	})
 }
 
-// RenderCurrentValidationErrors is wrapper function for rendering json in type of JSONResponse
+// RenderCurrentValidationError is wrapper function for rendering json in type of JSONResponse
 func (r *RevelResultRenderer) RenderCurrentValidationError() revel.Result {
 	errMessages := ""
 	for _, err := range r.controller.Validation.Errors {
