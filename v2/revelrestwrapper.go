@@ -73,6 +73,21 @@ func (r *RevelResultRenderer) RenderJSONError(err *APIError) revel.Result {
 	})
 }
 
+// RenderJSONError is wrapper function for rendering json in type of JSONResponse
+func (r *RevelResultRenderer) RenderJSONErrorWithUnspecificError(err error) revel.Result {
+	if err == nil {
+		panic(fmt.Errorf("err must not be null"))
+	}
+
+	apiError := NewAPI500Error(0, err.Error(), nil)
+	r.controller.Response.Status = apiError.HTTPStatus
+	return r.controller.RenderJSON(JSONResponse{
+		Success: false,
+		Data:    nil,
+		Error:   apiError,
+	})
+}
+
 // RenderCurrentValidationErrors is wrapper function for rendering json in type of JSONResponse
 func (r *RevelResultRenderer) RenderCurrentValidationError() revel.Result {
 	errMessages := ""
