@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"net/http"
 )
 
@@ -9,6 +10,10 @@ type APIError struct {
 	HTTPStatus           int    `json:"httpStatus"`
 	Message              string `json:"message"`
 	InternalErrorMessage string `json:"internalErrorMessage,omitempty"`
+}
+
+func (err APIError) Error() string {
+	return fmt.Sprintf("[Err-%v] %v", err.ErrorID, err.Message)
 }
 
 func NewAPIError(id int, httpStatus int, errMsg string, err error) *APIError {
