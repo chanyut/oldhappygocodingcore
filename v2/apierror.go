@@ -13,7 +13,7 @@ type APIError struct {
 }
 
 func (err APIError) Error() string {
-	return fmt.Sprintf("[Err-%v] %v", err.ErrorID, err.Message)
+	return fmt.Sprintf("[Err-%v] %v\n%v", err.ErrorID, err.Message, err.InternalErrorMessage)
 }
 
 func NewAPIError(id int, httpStatus int, errMsg string, err error) *APIError {
